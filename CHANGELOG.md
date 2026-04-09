@@ -11,28 +11,35 @@ y este proyecto se adhiere a las buenas prácticas de versionado y revisión de 
 
 ### Añadido / Modificado / Solucionado
 
-**Pull Request #4 (Automatización CI/CD, Documentación, Seguridad y Políticas)**
+**Pull Request #5 (Requerimiento 4: Definición de Políticas con OPA)**
 - **Autoras:** Solange y Mary
 - **Cambios:**
-  - **CI/CD:** Creación de un workflow de automatización utilizando GitHub Actions (`cicd.yml` en la ruta `.github/workflows/`).
-  - **CI/CD:** Configuración del disparador (trigger) para que el workflow se active exclusivamente ante peticiones de cambio (*Pull Requests*) hacia la rama `main`.
-  - **CI/CD & Seguridad:** Configuración de 4 secretos de repositorio (GitHub Secrets) para despliegue seguro e inyección de variables: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` y `MI_IP_ACCESO`.
-  - **Políticas (OPA):** Creación e integración de los archivos de validación `terraform_instance_check.rego` y `terraform_name_check.rego` para asegurar el cumplimiento de la infraestructura.
-  - **Documentación:** Se actualizó el archivo `README.md` detallando los objetivos del repositorio, instrucciones básicas de uso y su propósito general.
-  - **Documentación:** Actualización general del `CHANGELOG.md`.
-  - **Seguridad (EC2):** Resolución de múltiples hallazgos de Checkov en `ec2.tf` para permitir la ejecución del pipeline: 
-    - Restricción de tráfico de salida a HTTP/HTTPS (`CKV_AWS_382`).
-    - Habilitación de monitoreo detallado (`CKV_AWS_126`).
-    - Encriptación segura para el volumen raíz (`CKV_AWS_8`).
-    - Uso forzado de IMDSv2 (`CKV_AWS_79`).
-    - Inclusión del rol de instancia de LabAcademy (`CKV2_AWS_41`).
-    - Excepción documentada para incompatibilidad de EBS con t2.micro (`CKV_AWS_135`).
-  - **Seguridad (VPC):** Resolución de hallazgos de Checkov en `vpc.tf`:
-    - Restricción de todo el tráfico en el Security Group por defecto (`CKV2_AWS_12`).
-    - Configuración de retención de 365 días para Flow Logs (`CKV_AWS_338`).
-    - Excepciones documentadas para uso de IPs públicas en laboratorio (`CKV_AWS_130`) y llaves KMS restringidas en AWS Academy (`CKV_AWS_158`).
-  - **Pipeline Fix:** Corrección del error de compilación `terraform validate`, abstrayendo la IP de acceso SSH mediante variables y secretos.
+  - **Políticas (OPA):** Reincorporación oficial de los archivos de validación `terraform_instance_check.rego` y `terraform_name_check.rego`.
+  - **Políticas (OPA):** Implementación de la **Regla 1** (Bloqueo de SSH público 0.0.0.0/0 y validación de región `us-east-1`).
+  - **Políticas (OPA):** Implementación de la **Regla 2** (Restricción de tipo de instancia a `t2.micro` y validación de nomenclatura `AUY1105-appiac-ec2`).
+  - **CI/CD:** Activación (descomentado) de los pasos de instalación y ejecución de Open Policy Agent en el pipeline `cicd.yml`.
+  - **CI/CD:** Automatización de la generación de `tfplan.json` y su evaluación inmediata contra las políticas Rego.
   
+***Pull Request #4 (Automatización CI/CD, Documentación, Seguridad y Limpieza)**
+- **Autoras:** Solange y Mary
+- **Cambios:**
+  - **CI/CD:** Creación del workflow de GitHub Actions (`cicd.yml`) para validación automática en cada Pull Request hacia `main`.
+  - **CI/CD & Seguridad:** Configuración de secretos de repositorio (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` y `MI_IP_ACCESO`) para despliegues seguros.
+  - **CI/CD Fix:** Se comentaron temporalmente los pasos de ejecución de OPA en el workflow para permitir el éxito del pipeline mientras se prepara el Pull Request específico del Requerimiento 4.
+  - **CI/CD Fix:** Inyección de la variable de entorno `TF_VAR_mi_ip_acceso` en el pipeline para resolver el error de validación de Terraform.
+  - **Seguridad (Git):** Actualización del archivo `.gitignore` para excluir archivos de plan de Terraform (`tfplan`, `tfplan.json`) y reportes de Checkov, evitando la fuga de datos sensibles.
+  - **Documentación:** Actualización completa del `README.md` con instrucciones del proyecto y mantenimiento del `CHANGELOG.md`.
+  - **Refactor (Limpieza):** Eliminación de los archivos `.rego` de esta rama para mantener el orden por requerimientos (serán reintroducidos en su propio PR).
+  - **Seguridad (EC2 - Checkov):** Resolución de múltiples hallazgos en `ec2.tf`:
+    - Restricción de tráfico de salida (`CKV_AWS_382`).
+    - Habilitación de monitoreo detallado (`CKV_AWS_126`).
+    - Encriptación de volúmenes EBS (`CKV_AWS_8`).
+    - Uso obligatorio de IMDSv2 (`CKV_AWS_79`).
+  - **Seguridad (VPC - Checkov):** Resolución de hallazgos en `vpc.tf`:
+    - Aseguramiento del Security Group por defecto (`CKV2_AWS_12`).
+    - Configuración de retención de logs (`CKV_AWS_338`).
+    - Excepciones documentadas para el entorno de AWS Academy (`CKV_AWS_130`, `CKV_AWS_158`).
+
 **Pull Request #3 (Script de Instalación / Preparación)**
 - **Autor:** Mary
 - **Revisor:** Solange (Comentado y Aprobado)
