@@ -8,14 +8,23 @@ resource "aws_security_group" "ssh_access" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["152.230.70.226/32"] # Agregado /32 para que sea una IP válida
+    cidr_blocks = ["152.230.70.226"] # Permitir desde mi dirección IPv4
+  }
+
+  # Corrección Checkov CKV_AWS_382: Se limitó la salida a HTTPS (443) y HTTP (80)
+  egress {
+    description = "Permitir trafico de salida HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
-    description = "Permitir trafico de salida"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    description = "Permitir trafico de salida HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
@@ -24,15 +33,26 @@ resource "aws_security_group" "ssh_access" {
   }
 }
 
-# La instancia debe estar FUERA del bloque anterior
-resource "aws_instance" "appiac_ec2" {
-  ami                    = "ami-0ec10929233384c7f" # Ubuntu 24.04 LTS
+# checkov:skip=CKV_AWS_135: El tipo de instancia t2.micro no soporta EBS optimization en AWS.
+resource "aws_instance" "AUY1105-appiac-ec2" {
+  ami                    = "ami-0ec10929233384c7f"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.subnet_publica_1.id
   vpc_security_group_ids = [aws_security_group.ssh_access.id]
 
-  # Solución CKV2_AWS_41 para AWS Academy
-  iam_instance_profile   = "LabInstanceProfile"
+  # Corrección Checkov CKV_AWS_126: Habilitar monitoreo detallado
+  monitoring = true
+
+  # Corrección Checkov CKV_AWS_8: Encriptar el volumen raíz (EBS)
+  root_block_device {
+    encrypted = true
+  }
+
+  # Corrección Checkov CKV_AWS_79: Forzar el uso de IMDSv2 (Metadatos seguros)
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 
   tags = {
     Name = "AUY1105-appiac-ec2"
