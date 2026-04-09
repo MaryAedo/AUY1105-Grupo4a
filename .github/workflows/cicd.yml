@@ -1,0 +1,77 @@
+name: "AUY1105 - PipelineCI-Grupo4"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  iac_pipeline:
+    name: "Pipeline de Calidad e Infraestructura"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      # 0. Configuración de Credenciales de AWS 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      # 1. Análisis Estático (Requisito 3.1: TFLint)
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.50.0
+
+      - name: TFLint Init
+        run: tflint --init
+
+      - name: TFLint Run
+        run: tflint -f compact
+
+      # 2. Análisis de Seguridad (Requisito 3.2: Checkov)
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Checkov
+        run: pip3 install checkov
+
+      - name: Checkov Static Analysis
+        run: checkov -d . --framework terraform --quiet
+
+      # 3. Validación y Planificación (Requisito 3.3: Terraform Validate)
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan (Generar JSON para OPA)
+        run: |
+          terraform plan -out=tfplan
+          terraform show -json tfplan > tfplan.json
+
+      # 4. Evaluación de Políticas (Requisito 4: OPA para SSH y t2.micro)
+      - name: Setup OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/v0.61.0/opa_linux_amd64_static
+          chmod +x opa
+          sudo mv opa /usr/local/bin/
+
+      - name: Evaluar Políticas OPA
+        run: |
+          # Asegúrate de que tus archivos .rego estén en la carpeta 'policies/'
+          opa exec --decision terraform/allow --bundle policies/ tfplan.json
