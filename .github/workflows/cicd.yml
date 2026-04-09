@@ -77,7 +77,8 @@ jobs:
           chmod +x opa
           sudo mv opa /usr/local/bin/
 
-      - name: Evaluar Políticas OPA
-        run: |
-          # Asegúrate de que tus archivos .rego estén en la carpeta 'policies/'
-          opa exec --decision terraform/allow --bundle policies/ tfplan.json
+      - name: Evaluar Política de Seguridad e Instancia
+        run: opa eval -i tfplan.json -d policies/terraform_instance_check.rego "data.terraform.authz.allow" --fail
+
+      - name: Evaluar Política de Nomenclatura
+        run: opa eval -i tfplan.json -d policies/terraform_name_check.rego "data.terraform.authz.allow" --failgit 
