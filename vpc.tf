@@ -133,8 +133,12 @@ resource "aws_default_security_group" "default" {
 
 # Solución CKV2_AWS_11: Flow Logs para Auditoría
 resource "aws_cloudwatch_log_group" "vpc_log_group" {
+  # checkov:skip=CKV_AWS_158: No es viable en AWS Academy. La creación de llaves KMS está restringida.
   name              = "/aws/vpc/AUY1105-appiac-flow-logs"
-  retention_in_days = 7
+  
+  # Corrección Checkov CKV_AWS_338: Retener logs por al menos 1 año
+  retention_in_days = 365
+  
   tags = {
     Name = "AUY1105-appiac-lg"
   }

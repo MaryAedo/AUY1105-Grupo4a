@@ -33,12 +33,16 @@ resource "aws_security_group" "ssh_access" {
   }
 }
 
-# checkov:skip=CKV_AWS_135: El tipo de instancia t2.micro no soporta EBS optimization en AWS.
 resource "aws_instance" "AUY1105-appiac-ec2" {
+  # checkov:skip=CKV_AWS_135: La instancia t2.micro no soporta optimización EBS por defecto y no es requerido para el lab.
+  
   ami                    = "ami-0ec10929233384c7f"
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.subnet_publica_1.id
   vpc_security_group_ids = [aws_security_group.ssh_access.id]
+
+  # Corrección Checkov CKV2_AWS_41: Adjuntar rol usando el perfil de instancia predeterminado de AWS Academy
+  iam_instance_profile   = "LabInstanceProfile"
 
   # Corrección Checkov CKV_AWS_126: Habilitar monitoreo detallado
   monitoring = true
