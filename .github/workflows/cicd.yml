@@ -60,6 +60,12 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan (Generar JSON para OPA)
+        env:
+          TF_VAR_mi_ip_acceso: ${{ secrets.MI_IP_ACCESO }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: "us-east-1"
         run: |
           terraform plan -out=tfplan
           terraform show -json tfplan > tfplan.json

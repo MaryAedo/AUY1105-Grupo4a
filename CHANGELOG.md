@@ -9,36 +9,30 @@ y este proyecto se adhiere a las buenas prácticas de versionado y revisión de 
 
 ## [Unreleased] - En desarrollo
 
-### Añadido / Modificado
+### Añadido / Modificado / Solucionado
 
-**Pull Request #6 (Corrección de vulnerabilidades VPC - Checkov)**
-- **Autor:** Solange
-- **Revisor:** Mary (Comentado y Aprobado)
+**Pull Request #4 (Automatización CI/CD, Documentación, Seguridad y Políticas)**
+- **Autoras:** Solange y Mary
 - **Cambios:**
-  - Resolución de hallazgos de seguridad en `vpc.tf` detectados por el pipeline.
-  - Excepción documentada para `CKV_AWS_130` justificando el uso de IPs públicas en las subredes para el acceso del laboratorio.
-  - Corrección de `CKV2_AWS_12` asegurando y restringiendo todo el tráfico en el Security Group por defecto de la VPC.
-  - Excepción documentada para `CKV2_AWS_11` (VPC Flow Logs), dado que no es un requerimiento de la arquitectura base solicitada.
-
-**Pull Request #5 (Corrección de vulnerabilidades EC2 - Checkov)**
-- **Autor:** Mary
-- **Revisor:** Solange (Comentado y Aprobado)
-- **Cambios:**
-  - Resolución de hallazgos de seguridad en `ec2.tf` detectados por el pipeline.
-  - Corrección de `CKV_AWS_382`: Restricción de tráfico de salida en el Security Group solo a los puertos estrictamente necesarios (HTTP/HTTPS).
-  - Corrección de `CKV_AWS_126`: Habilitación de monitoreo detallado para la instancia EC2.
-  - Corrección de `CKV_AWS_8`: Habilitación de encriptación segura para el volumen raíz de la instancia.
-  - Corrección de `CKV_AWS_79`: Se forzó la versión 2 del servicio de metadatos (IMDSv2).
-  - Excepciones documentadas para `CKV_AWS_135` (incompatibilidad de EBS con t2.micro) y `CKV2_AWS_41` (Rol IAM no requerido).
-
-**Pull Request #4 (Automatización CI/CD y Documentación - Inicio Req. 3)**
-- **Autor:** Solange
-- **Revisor:** Mary (Comentado y Aprobado)
-- **Cambios:**
-  - Creación de un workflow de automatización utilizando GitHub Actions (`cicd.yml` en la ruta `.github/workflows/`).
-  - Configuración del disparador (trigger) para que el workflow se active exclusivamente ante peticiones de cambio (*Pull Requests*) hacia la rama `main`.
-  - Se actualizó el archivo `README.md` detallando los objetivos del repositorio, instrucciones básicas de uso y su propósito general.
-
+  - **CI/CD:** Creación de un workflow de automatización utilizando GitHub Actions (`cicd.yml` en la ruta `.github/workflows/`).
+  - **CI/CD:** Configuración del disparador (trigger) para que el workflow se active exclusivamente ante peticiones de cambio (*Pull Requests*) hacia la rama `main`.
+  - **CI/CD & Seguridad:** Configuración de 4 secretos de repositorio (GitHub Secrets) para despliegue seguro e inyección de variables: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN` y `MI_IP_ACCESO`.
+  - **Políticas (OPA):** Creación e integración de los archivos de validación `terraform_instance_check.rego` y `terraform_name_check.rego` para asegurar el cumplimiento de la infraestructura.
+  - **Documentación:** Se actualizó el archivo `README.md` detallando los objetivos del repositorio, instrucciones básicas de uso y su propósito general.
+  - **Documentación:** Actualización general del `CHANGELOG.md`.
+  - **Seguridad (EC2):** Resolución de múltiples hallazgos de Checkov en `ec2.tf` para permitir la ejecución del pipeline: 
+    - Restricción de tráfico de salida a HTTP/HTTPS (`CKV_AWS_382`).
+    - Habilitación de monitoreo detallado (`CKV_AWS_126`).
+    - Encriptación segura para el volumen raíz (`CKV_AWS_8`).
+    - Uso forzado de IMDSv2 (`CKV_AWS_79`).
+    - Inclusión del rol de instancia de LabAcademy (`CKV2_AWS_41`).
+    - Excepción documentada para incompatibilidad de EBS con t2.micro (`CKV_AWS_135`).
+  - **Seguridad (VPC):** Resolución de hallazgos de Checkov en `vpc.tf`:
+    - Restricción de todo el tráfico en el Security Group por defecto (`CKV2_AWS_12`).
+    - Configuración de retención de 365 días para Flow Logs (`CKV_AWS_338`).
+    - Excepciones documentadas para uso de IPs públicas en laboratorio (`CKV_AWS_130`) y llaves KMS restringidas en AWS Academy (`CKV_AWS_158`).
+  - **Pipeline Fix:** Corrección del error de compilación `terraform validate`, abstrayendo la IP de acceso SSH mediante variables y secretos.
+  
 **Pull Request #3 (Script de Instalación / Preparación)**
 - **Autor:** Mary
 - **Revisor:** Solange (Comentado y Aprobado)
