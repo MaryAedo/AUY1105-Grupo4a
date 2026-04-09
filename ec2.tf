@@ -8,7 +8,7 @@ resource "aws_security_group" "ssh_access" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["152.230.70.226"] # Permitir desde mi dirección IPv4
+    cidr_blocks = [var.mi_ip_acceso] # <--- Llamamos a la variable aquí
   }
 
   # Corrección Checkov CKV_AWS_382: Se limitó la salida a HTTPS (443) y HTTP (80)
