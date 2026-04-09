@@ -14,7 +14,7 @@ y este proyecto se adhiere a las buenas prácticas de versionado y revisión de 
 **Pull Request #5 (Requerimiento 4: Definición de Políticas con OPA)**
 - **Autoras:** Solange y Mary
 - **Cambios:**
-  - **Políticas (OPA):** Reincorporación oficial de los archivos de validación `terraform_instance_check.rego` y `terraform_name_check.rego`.
+  - **Políticas (OPA):** Reincorporación oficial de los archivos de validación `terraform_instance_check.rego` y `terraform_name_check.rego` a la carpeta policies.
   - **Políticas (OPA):** Implementación de la **Regla 1** (Bloqueo de SSH público 0.0.0.0/0 y validación de región `us-east-1`).
   - **Políticas (OPA):** Implementación de la **Regla 2** (Restricción de tipo de instancia a `t2.micro` y validación de nomenclatura `AUY1105-appiac-ec2`).
   - **CI/CD:** Activación (descomentado) de los pasos de instalación y ejecución de Open Policy Agent en el pipeline `cicd.yml`.
