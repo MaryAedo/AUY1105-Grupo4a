@@ -2,17 +2,17 @@
 # <sigla-curso>-<nombre-aplicación>-<tipo-recurso>, donde <tipo-recurso> es una abreviatura que 
 # representa el tipo de recurso y <nombre-proyecto> es un nombre asignado por el alumno. 
 # Por ejemplo, para la creación de una VPC, del proyecto llamado “duocapp”, el nombre final del recurso es: AUY1105-duocapp-vpc.
-
+# --- VPC PRINCIPAL ---
 resource "aws_vpc" "mi_vpc" {
-  cidr_block           = "10.1.0.0/16"
+  cidr_block           = "10.1.0.0/16" # Requisito Evaluación [cite: 57, 127]
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags = {
-    Name = "AUY1105-appiac-vpc"
+    Name = "AUY1105-appiac-vpc" # Nomenclatura Estándar [cite: 66, 127]
   }
 }
 
-# Crear un Internet Gateway
+# --- CONECTIVIDAD ---
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.mi_vpc.id
   tags = {
@@ -20,12 +20,12 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-# Crear subnets públicas
+# --- SUBREDES PÚBLICAS (CORREGIDAS A 10.1.x.x) ---
 resource "aws_subnet" "subnet_publica_1" {
   vpc_id                  = aws_vpc.mi_vpc.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.1.1.0/24" # Corregido para estar dentro de 10.1.0.0/16
   availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false # Solución CKV_AWS_130
   tags = {
     Name = "AUY1105-appiac-subnet-publica-1"
   }
@@ -33,18 +33,18 @@ resource "aws_subnet" "subnet_publica_1" {
 
 resource "aws_subnet" "subnet_publica_2" {
   vpc_id                  = aws_vpc.mi_vpc.id
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = "10.1.2.0/24" # Corregido para estar dentro de 10.1.0.0/16
   availability_zone       = "us-east-1b"
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false # Solución CKV_AWS_130
   tags = {
     Name = "AUY1105-appiac-subnet-publica-2"
   }
 }
 
-# Crear subnets privadas
+# --- SUBREDES PRIVADAS (CORREGIDAS A 10.1.x.x) ---
 resource "aws_subnet" "subnet_privada_1" {
   vpc_id            = aws_vpc.mi_vpc.id
-  cidr_block        = "10.0.3.0/24"
+  cidr_block        = "10.1.3.0/24"
   availability_zone = "us-east-1a"
   tags = {
     Name = "AUY1105-appiac-subnet-privada-1"
@@ -53,16 +53,16 @@ resource "aws_subnet" "subnet_privada_1" {
 
 resource "aws_subnet" "subnet_privada_2" {
   vpc_id            = aws_vpc.mi_vpc.id
-  cidr_block        = "10.0.4.0/24"
+  cidr_block        = "10.1.4.0/24"
   availability_zone = "us-east-1b"
   tags = {
     Name = "AUY1105-appiac-subnet-privada-2"
   }
 }
 
-# Crear un NAT Gateway
+# --- NAT GATEWAY ---
 resource "aws_eip" "nat_eip" {
-  domain = "vpc" # <--- Cambia 'vpc = true' por esto
+  domain = "vpc"
   tags = {
     Name = "AUY1105-appiac-nat-eip"
   }
@@ -76,7 +76,7 @@ resource "aws_nat_gateway" "nat_gw" {
   }
 }
 
-# Tabla de enrutamiento pública
+# --- RUTAS PÚBLICAS ---
 resource "aws_route_table" "public_rtb" {
   vpc_id = aws_vpc.mi_vpc.id
   tags = {
@@ -84,7 +84,12 @@ resource "aws_route_table" "public_rtb" {
   }
 }
 
-# Asociar subnets públicas a la tabla pública
+resource "aws_route" "public_route" {
+  route_table_id         = aws_route_table.public_rtb.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.igw.id
+}
+
 resource "aws_route_table_association" "public_assoc_1" {
   subnet_id      = aws_subnet.subnet_publica_1.id
   route_table_id = aws_route_table.public_rtb.id
@@ -95,14 +100,7 @@ resource "aws_route_table_association" "public_assoc_2" {
   route_table_id = aws_route_table.public_rtb.id
 }
 
-# Crear ruta para Internet en la tabla pública
-resource "aws_route" "public_route" {
-  route_table_id         = aws_route_table.public_rtb.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.igw.id
-}
-
-# Tabla de enrutamiento privada
+# --- RUTAS PRIVADAS ---
 resource "aws_route_table" "private_rtb" {
   vpc_id = aws_vpc.mi_vpc.id
   tags = {
@@ -110,7 +108,12 @@ resource "aws_route_table" "private_rtb" {
   }
 }
 
-# Asociar subnets privadas a la tabla privada
+resource "aws_route" "private_route" {
+  route_table_id         = aws_route_table.private_rtb.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.nat_gw.id
+}
+
 resource "aws_route_table_association" "private_assoc_1" {
   subnet_id      = aws_subnet.subnet_privada_1.id
   route_table_id = aws_route_table.private_rtb.id
@@ -121,9 +124,29 @@ resource "aws_route_table_association" "private_assoc_2" {
   route_table_id = aws_route_table.private_rtb.id
 }
 
-# Crear ruta para NAT en la tabla privada
-resource "aws_route" "private_route" {
-  route_table_id         = aws_route_table.private_rtb.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat_gw.id
+# --- SEGURIDAD Y CUMPLIMIENTO (CHECKS DE SEGURIDAD) ---
+
+# Solución CKV2_AWS_12: Restringir Security Group por defecto
+resource "aws_default_security_group" "default" {
+  vpc_id = aws_vpc.mi_vpc.id
+}
+
+# Solución CKV2_AWS_11: Flow Logs para Auditoría
+resource "aws_cloudwatch_log_group" "vpc_log_group" {
+  name              = "/aws/vpc/AUY1105-appiac-flow-logs"
+  retention_in_days = 7
+  tags = {
+    Name = "AUY1105-appiac-lg"
+  }
+}
+
+data "aws_iam_role" "labrole" {
+  name = "LabRole" # Rol preexistente en AWS Academy
+}
+
+resource "aws_flow_log" "mi_vpc_flow_log" {
+  iam_role_arn    = data.aws_iam_role.labrole.arn
+  log_destination = aws_cloudwatch_log_group.vpc_log_group.arn
+  traffic_type    = "ALL"
+  vpc_id          = aws_vpc.mi_vpc.id
 }
