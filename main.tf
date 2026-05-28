@@ -25,10 +25,3 @@ module "computo" {
   security_group_id = module.redes.security_group_id
   environment       = "AUY1105-appiac"
 }
-  
-
- # Estandarización de nomenclatura de recursos
-
- environment    = "AUY1105-appiac"
-
-}
