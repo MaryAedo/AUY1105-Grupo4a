@@ -1,9 +1,12 @@
 name: "AUY1105 - PipelineCI-Grupo4"
 
 on:
+  push:
+    branches:
+      - dev  # Se ejecutará cada vez que hagan push a dev
   pull_request:
     branches:
-      - main
+      - main # Y también cuando hagan el PR final a main
 
 jobs:
   iac_pipeline:
