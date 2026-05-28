@@ -8,17 +8,17 @@
 
 
 
-# checkov:skip=CKV_TF_1: Ignorar uso de commit hash mientras se prueba en rama dev
-# checkov:skip=CKV_TF_2: Ignorar uso de tag mientras se prueba en rama dev
 module "redes" {
+  # checkov:skip=CKV_TF_1: Pruebas en rama dev
+  # checkov:skip=CKV_TF_2: Pruebas en rama dev
   source = "git::https://github.com/Solange-sm/terraform-aws-vpc-AUY1105-Grupo-4.git//vpc_module?ref=dev-sm"
   
   mi_ip_acceso = var.mi_ip_acceso
 }
 
-# checkov:skip=CKV_TF_1: Ignorar uso de commit hash mientras se prueba en rama dev
-# checkov:skip=CKV_TF_2: Ignorar uso de tag mientras se prueba en rama dev
 module "computo" {
+  # checkov:skip=CKV_TF_1: Pruebas en rama dev
+  # checkov:skip=CKV_TF_2: Pruebas en rama dev
   source = "git::https://github.com/Solange-sm/terraform-aws-EC2-AUY1105-Grupo-4.git?ref=dev-ma"
   
   subnet_id         = module.redes.public_subnet_ids[0]
