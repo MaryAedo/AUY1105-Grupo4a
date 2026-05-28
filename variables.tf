@@ -1,4 +1,4 @@
 variable "mi_ip_acceso" {
-    description = "Mi dirección IP pública para acceso SSH"
-    type        = string
+  description = "Dirección IP pública para el acceso SSH restringido"
+  type        = string
 }
