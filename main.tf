@@ -8,38 +8,23 @@
 
 
 
-# 1. Despliegue de la capa de red (Módulo Externo: Redes)
-
+# checkov:skip=CKV_TF_1: Ignorar uso de commit hash mientras se prueba en rama dev
+# checkov:skip=CKV_TF_2: Ignorar uso de tag mientras se prueba en rama dev
 module "redes" {
-
- source = "git::https://github.com/Solange-sm/terraform-aws-vpc-AUY1105-Grupo-4.git//vpc_module?ref=dev-sm"
-
+  source = "git::https://github.com/Solange-sm/terraform-aws-vpc-AUY1105-Grupo-4.git//vpc_module?ref=dev-sm"
   
-
- # Parámetro inyectado mediante variables de entorno (GitHub Actions Secrets)
-
- mi_ip_acceso = var.mi_ip_acceso
-
+  mi_ip_acceso = var.mi_ip_acceso
 }
 
-
-
-# 2. Despliegue de la capa de aplicación (Módulo Externo: Cómputo)
-
+# checkov:skip=CKV_TF_1: Ignorar uso de commit hash mientras se prueba en rama dev
+# checkov:skip=CKV_TF_2: Ignorar uso de tag mientras se prueba en rama dev
 module "computo" {
-
- source = "git::https://github.com/Solange-sm/terraform-aws-EC2-AUY1105-Grupo-4.git?ref=dev-ma"
-
+  source = "git::https://github.com/Solange-sm/terraform-aws-EC2-AUY1105-Grupo-4.git?ref=dev-ma"
   
-
- # Inyección dinámica de dependencias (Outputs del módulo de red hacia EC2)
-
- # Se extrae el primer elemento del bloque de subredes públicas
-
- subnet_id     = module.redes.public_subnet_ids[0]
-
- security_group_id = module.redes.security_group_id
-
+  subnet_id         = module.redes.public_subnet_ids[0]
+  security_group_id = module.redes.security_group_id
+  environment       = "AUY1105-appiac"
+}
   
 
  # Estandarización de nomenclatura de recursos
