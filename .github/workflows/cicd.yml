@@ -48,7 +48,7 @@ jobs:
         run: pip3 install checkov
 
       - name: Checkov Static Analysis
-        run: checkov -d . --framework terraform --quiet
+        run: checkov -d . --framework terraform --download-external-modules ext --quiet
 
       # 3. Validación y Planificación (Requisito 3.3: Terraform Validate)
       - name: Setup Terraform
