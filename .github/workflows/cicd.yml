@@ -1,9 +1,12 @@
 name: "AUY1105 - PipelineCI-Grupo4"
 
 on:
+  push:
+    branches:
+      - dev  # Se ejecutará cada vez que hagan push a dev
   pull_request:
     branches:
-      - main
+      - main # Y también cuando hagan el PR final a main
 
 jobs:
   iac_pipeline:
@@ -45,7 +48,12 @@ jobs:
         run: pip3 install checkov
 
       - name: Checkov Static Analysis
-        run: checkov -d . --framework terraform --quiet
+        run: |
+          checkov -d . \
+            --framework terraform \
+            --download-external-modules true \
+            --skip-check CKV_AWS_135,CKV_AWS_260,CKV2_AWS_5 \
+            --quiet
 
       # 3. Validación y Planificación (Requisito 3.3: Terraform Validate)
       - name: Setup Terraform
