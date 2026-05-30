@@ -1,14 +1,31 @@
-# Asegurarse de documentar todos los cambios realizados sobre el proyecto.
-
 # Changelog
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
-y este proyecto se adhiere a las buenas prácticas de versionado y revisión de código mediante Pull Requests.
+y este proyecto se adhiere a las buenas prácticas de versionado y revisión de código mediante Pull Requests bajo el estándar de Versionado Semántico (SemVer).
 
-## [Unreleased] - En desarrollo
+## [2.0.0] - 2026-05-30
+### Added
+- **Arquitectura Modular:** Orquestación centralizada invocando módulos remotos externos para la capa de Redes (`vpc_module`) y Cómputo (`ec2_module`).
+- **Documentación:** Propuesta de `README.md` principal actualizado reflejando la nueva arquitectura orquestada.
 
+### Changed
+- **CI/CD:** Modificación del workflow (`cicd.yml`) para activarse temporalmente con el evento `push` hacia la rama `dev` para facilitar pruebas.
+- **Infraestructura:** Refactorización de la asignación de la variable `environment` en `main.tf` para estandarizar la nomenclatura de recursos.
+- **Configuración:** Formateo del archivo `versions.tf` para mayor coherencia visual y de código.
+
+### Fixed
+- **CI/CD (Checkov):** Ajuste en el pipeline (`--download-external-modules ext`) para que Checkov descargue y valide correctamente el contenido de los módulos externos de Terraform.
+- **CI/CD (Terraform):** Corrección de compatibilidad en el pipeline limitando la versión requerida de Terraform.
+- **Seguridad (Checkov):** Modificación del `main.tf` implementando skips (`CKV_TF_1`, `CKV_TF_2`) para obviar temporalmente las validaciones estrictas de tags/commits al probar en ramas de desarrollo.
+
+### Removed
+- **Infraestructura Monolítica:** Eliminación de los archivos locales `vpc.tf` y `ec2.tf`. La lógica fue migrada a sus respectivos repositorios modulares.
+
+---
+
+## [1.0.0] - Historial Evaluación Parcial 1
 ### Añadido / Modificado / Solucionado
 
 **Pull Request #5 (Requerimiento 4: Definición de Políticas con OPA)**
@@ -20,7 +37,7 @@ y este proyecto se adhiere a las buenas prácticas de versionado y revisión de 
   - **CI/CD:** Activación (descomentado) de los pasos de instalación y ejecución de Open Policy Agent en el pipeline `cicd.yml`.
   - **CI/CD:** Automatización de la generación de `tfplan.json` y su evaluación inmediata contra las políticas Rego.
   
-***Pull Request #4 (Automatización CI/CD, Documentación, Seguridad y Limpieza)**
+**Pull Request #4 (Automatización CI/CD, Documentación, Seguridad y Limpieza)**
 - **Autoras:** Solange y Mary
 - **Cambios:**
   - **CI/CD:** Creación del workflow de GitHub Actions (`cicd.yml`) para validación automática en cada Pull Request hacia `main`.
@@ -67,12 +84,3 @@ y este proyecto se adhiere a las buenas prácticas de versionado y revisión de 
   - Creación de la rama `dev` para el flujo de trabajo.
   - Creación del archivo `.gitignore` configurado para excluir archivos no deseados.
   - Creación del archivo `CHANGELOG.md` para documentar todos los cambios realizados sobre el proyecto.
-
----
-
-### Pendiente de Implementar (Próximos pasos a registrar)
-
-**Requerimiento 4: Definición de Políticas**
-- Implementación de políticas de configuración utilizando Open Policy Agent (OPA).
-  - Regla 1: Política de seguridad que impide el acceso SSH público (`0.0.0.0/0`) hacia la instancia EC2.
-  - Regla 2: Política de restricción de recursos que solo permite la creación de instancias EC2 del tipo `t2.micro`.
