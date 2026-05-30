@@ -140,7 +140,7 @@ terraform destroy
 
 ## Automatización CI
 
-El workflow de GitHub Actions se ejecuta sobre pull requests hacia la rama `main` y realiza las siguientes etapas:
+El workflow de GitHub Actions se ejecuta automáticamente al realizar un `push` a la rama de desarrollo (`dev`) y sobre los `pull requests` hacia la rama principal (`main`), realizando las siguientes etapas:
 
 1. **Análisis estático** con `tflint`.
 2. **Análisis de seguridad** con `checkov`.
