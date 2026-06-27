@@ -12,7 +12,7 @@ module "redes" {
 
 module "computo" {
   # Apuntando a la versión semántica oficial exigida por la rúbrica
-  source = "git::https://github.com/Solange-sm/terraform-aws-EC2-AUY1105-Grupo-4.git?ref=V2.0.0"
+  source = "git::https://github.com/Solange-sm/terraform-aws-EC2-AUY1105-Grupo-4.git?ref=v2.0.0"
   
   subnet_id         = module.redes.public_subnet_ids[0]
   security_group_id = module.redes.security_group_id
